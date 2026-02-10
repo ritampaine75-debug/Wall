@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wall | HD Wallpapers</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS RESET & VARIABLES --- */
+        :root {
+            --bg-color: #0f0f11;
+            --card-bg: #1a1a1d;
+            --accent: #6c5ce7;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://source.unsplash.com/random/1920x600?abstract');
+            background-size: cover;
+            background-position: center;
+            padding: 80px 20px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: -webkit-linear-gradient(#fff, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- GALLERY GRID --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        /* --- IMAGE CARD --- */
+        .card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--card-bg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            aspect-ratio: 16/9; /* Force consistent shape */
+        }
+
+        .card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 15px 40px rgba(108, 92, 231, 0.2);
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            display: block;
+        }
+
+        .card:hover img {
+            transform: scale(1.1);
+        }
+
+        /* --- OVERLAY & BUTTONS --- */
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            padding: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card:hover .overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .file-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #ddd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 60%;
+        }
+
+        .btn-download {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-download:hover {
+            background-color: #5649c0;
+        }
+
+        .btn-download i { font-size: 0.8rem; }
+
+        /* --- UTILS --- */
+        .loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .error {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            color: #ff6b6b;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: #000;
+            color: #555;
+            font-size: 0.9rem;
+            border-top: 1px solid #222;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+            .gallery { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>WALLPAPER HUB</h1>
+        <p>Curated Collection</p>
+    </header>
+
+    <div class="container">
+        <div class="gallery" id="gallery">
+            <div class="loading">
+                <i class="fas fa-circle-notch fa-spin"></i> Loading library...
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Wallpaper Collection | Powered by GitHub Pages</p>
+    </footer>
+
+    <script>
+        // ===========================================
+        // USER CONFIGURATION
+        // ===========================================
+        const USERNAME = "ritampaine75-debug";
+        const REPO = "wall";
+        const FOLDER = "wallpapers"; // Ensure you created this folder!
+        // ===========================================
+
+        const gallery = document.getElementById('gallery');
+        const apiUrl = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FOLDER}`;
+
+        async function init() {
+            try {
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    if(response.status === 404) throw new Error(`Folder "<b>${FOLDER}</b>" not found in repo "<b>${REPO}</b>".`);
+                    if(response.status === 403) throw new Error("API Limit Reached. Wait a few minutes.");
+                    throw new Error("GitHub API Error");
+                }
+
+                const data = await response.json();
+                
+                // Filter images
+                const images = data.filter(file => 
+                    file.name.match(/\.(jpg|jpeg|png|webp|gif|svg)$/i)
+                );
+
+                if (images.length === 0) {
+                    gallery.innerHTML = `<div class="error">No images found inside '${FOLDER}'. Please upload some files.</div>`;
+                    return;
+                }
+
+                gallery.innerHTML = ''; // Clear loading
+
+                images.forEach(file => {
+                    createCard(file);
+                });
+
+            } catch (error) {
+                gallery.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                console.error(error);
+            }
+        }
+
+        function createCard(file) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const rawUrl = file.download_url;
+
+            card.innerHTML = `
+                <img src="${rawUrl}" alt="${file.name}" loading="lazy">
+                <div class="overlay">
+                    <span class="file-name">${file.name}</span>
+                    <button class="btn-download" onclick="downloadImage('${rawUrl}', '${file.name}')">
+                        <i class="fas fa-download"></i> Save
+                    </button>
+                </div>
+            `;
+            gallery.appendChild(card);
+        }
+
+        // Feature: Force Download using Blob to bypass browser "Open Image" behavior
+        async function downloadImage(url, filename) {
+            try {
+                const btn = event.target.closest('button');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`; // Loading state
+
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Cleanup
+                window.URL.revokeObjectURL(blobUrl);
+                btn.innerHTML = originalText;
+
+            } catch (e) {
+                alert("Download failed. Opening image instead.");
+                window.open(url, '_blank');
+            }
+        }
+
+        // Run
+        init();
+    </script>
+</body>
+</html>
