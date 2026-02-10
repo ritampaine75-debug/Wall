@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wallpapers</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- VARIABLES & RESET --- */
+        :root {
+            --bg: #000000;
+            --surface: #1e1e1e;
+            --primary: #7047eb;
+            --text: #ffffff;
+            --text-secondary: #a1a1aa;
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* --- STICKY HEADER --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #fff, #7047eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .social-link {
+            color: var(--text);
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        /* --- MASONRY LAYOUT (Pinterest Style) --- */
+        .container {
+            padding: 80px 10px 20px 10px; /* Top padding clears header */
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .gallery {
+            column-count: 2; /* Default for mobile */
+            column-gap: 10px;
+        }
+
+        /* --- WALLPAPER CARD --- */
+        .card {
+            break-inside: avoid;
+            margin-bottom: 10px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            background: var(--surface);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .card:active { transform: scale(0.98); }
+
+        .card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: var(--radius);
+        }
+
+        /* Gradient overlay for text readability on card */
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 40%;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        /* --- FULLSCREEN MODAL (Lightbox) --- */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Modal Image Area */
+        .modal-image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .modal-img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(112, 71, 235, 0.2);
+            object-fit: contain;
+        }
+
+        /* Modal Controls (Bottom Sheet) */
+        .modal-controls {
+            background: var(--surface);
+            padding: 20px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(112, 71, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: #333;
+            color: white;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* --- SKELETON LOADING --- */
+        .skeleton {
+            width: 100%;
+            height: 300px;
+            background: #1a1a1a;
+            border-radius: var(--radius);
+            margin-bottom: 10px;
+            animation: pulse 1.5s infinite;
+            break-inside: avoid;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* --- RESPONSIVE BREAKPOINTS --- */
+        @media (min-width: 768px) {
+            .gallery { column-count: 3; column-gap: 20px; }
+            .card { margin-bottom: 20px; }
+            .modal-controls { 
+                flex-direction: row; 
+                align-items: center; 
+                justify-content: space-between;
+                border-radius: 0;
+                background: transparent;
+                position: absolute;
+                bottom: 20px; left: 50%;
+                transform: translateX(-50%);
+                width: auto;
+                gap: 20px;
+            }
+            .btn { width: auto; min-width: 160px; }
+        }
+
+        @media (min-width: 1200px) {
+            .gallery { column-count: 5; }
+        }
+
+        .error-msg {
+            color: #ff4757;
+            text-align: center;
+            margin-top: 50px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">WallpaperHub</div>
+        <a href="https://github.com/ritampaine75-debug/wall" class="social-link"><i class="fab fa-github"></i></a>
+    </header>
+
+    <div class="container">
+        <!-- Skeleton Loaders (Visible initially) -->
+        <div class="gallery" id="gallery">
+            <div class="skeleton" style="height: 400px"></div>
+            <div class="skeleton" style="height: 250px"></div>
+            <div class="skeleton" style="height: 350px"></div>
+            <div class="skeleton" style="height: 300px"></div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Preview Modal -->
+    <div class="modal" id="imageModal">
+        <div class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></div>
+        
+        <div class="modal-image-container">
+            <img src="" class="modal-img" id="modalImg" alt="Preview">
+        </div>
+
+        <div class="modal-controls">
+            <div class="modal-title" id="modalTitle">Wallpaper Name</div>
+            <div class="action-row">
+                <button class="btn btn-secondary" onclick="copyLink()">
+                    <i class="fas fa-link"></i> Copy
+                </button>
+                <button class="btn btn-primary" id="downloadBtn">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // CONFIGURATION
+        // ===========================================
+        const USERNAME = "ritampaine75-debug";
+        const REPO = "wall";
+        const FOLDER = "wallpapers"; 
+        // ===========================================
+
+        const gallery = document.getElementById('gallery');
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalTitle = document.getElementById('modalTitle');
+        const downloadBtn = document.getElementById('downloadBtn');
+        let currentImageUrl = '';
+
+        async function init() {
+            const apiUrl = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FOLDER}`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error("Could not fetch wallpapers. Check Repo/Folder names.");
+                
+                const data = await response.json();
+                
+                // Filter images
+                const images = data.filter(file => file.name.match(/\.(jpg|jpeg|png|webp)$/i));
+                
+                // Clear skeletons
+                gallery.innerHTML = '';
+
+                if(images.length === 0) {
+                    gallery.innerHTML = '<div class="error-msg">No images found.</div>';
+                    return;
+                }
+
+                images.forEach(file => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    // We pass the raw URL to the click handler
+                    card.onclick = () => openModal(file.download_url, file.name);
+                    
+                    // Lazy load images
+                    card.innerHTML = `<img src="${file.download_url}" loading="lazy" alt="${file.name}">`;
+                    
+                    gallery.appendChild(card);
+                });
+
+            } catch (error) {
+                gallery.innerHTML = `<div class="error-msg">${error.message}</div>`;
+            }
+        }
+
+        // --- MODAL FUNCTIONS ---
+
+        function openModal(url, name) {
+            modalImg.src = url;
+            modalTitle.innerText = name;
+            currentImageUrl = url;
+            
+            // Setup download button
+            downloadBtn.onclick = () => triggerDownload(url, name);
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling bg
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            setTimeout(() => { modalImg.src = ''; }, 300); // Clear after animation
+        }
+
+        // Close modal if clicking outside image
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal || e.target.classList.contains('modal-image-container')) {
+                closeModal();
+            }
+        });
+
+        // --- ACTION FUNCTIONS ---
+
+        async function triggerDownload(url, filename) {
+            const originalText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Downloading...`;
+            
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(blobUrl);
+                
+                downloadBtn.innerHTML = `<i class="fas fa-check"></i> Saved!`;
+                setTimeout(() => downloadBtn.innerHTML = originalText, 2000);
+            } catch (e) {
+                // Fallback
+                window.open(url, '_blank');
+                downloadBtn.innerHTML = originalText;
+            }
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(currentImageUrl);
+            const btn = document.querySelector('.btn-secondary');
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-check"></i> Copied`;
+            setTimeout(() => btn.innerHTML = original, 2000);
+        }
+
+        // Run
+        init();
+    </script>
+</body>
+</html>
