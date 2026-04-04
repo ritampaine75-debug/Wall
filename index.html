@@ -3,21 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wallpapers</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
+    <title>WallHub | Minimal</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- VARIABLES & RESET --- */
         :root {
-            --bg: #000000;
-            --surface: #1e1e1e;
+            --bg: #050505;
+            --surface: #121212;
             --primary: #7047eb;
             --text: #ffffff;
-            --text-secondary: #a1a1aa;
-            --radius: 16px;
+            --text-secondary: #888888;
+            --border: rgba(255, 255, 255, 0.05);
+            --radius: 20px;
+        }
+
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --surface: #f5f5f7;
+            --primary: #5c36cc;
+            --text: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --border: rgba(0, 0, 0, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -26,397 +34,325 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg);
             color: var(--text);
-            overflow-x: hidden;
+            transition: background 0.3s ease;
         }
 
-        /* --- STICKY HEADER --- */
+        /* --- HEADER --- */
         header {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 100;
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            padding: 20px 5%;
+            background: rgba(var(--bg), 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid var(--border);
         }
 
         .logo {
-            font-size: 1.2rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #fff, #7047eb);
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--primary), #b097ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
         }
 
-        .social-link {
+        .nav-actions { display: flex; gap: 12px; }
+
+        .icon-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
             color: var(--text);
-            font-size: 1.2rem;
-            text-decoration: none;
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s;
         }
 
-        /* --- MASONRY LAYOUT (Pinterest Style) --- */
-        .container {
-            padding: 80px 10px 20px 10px; /* Top padding clears header */
-            max-width: 1600px;
-            margin: 0 auto;
+        /* --- GALLERY --- */
+        .container { 
+            padding: 100px 4% 40px 4%; 
+            max-width: 1400px; 
+            margin: 0 auto; 
         }
 
         .gallery {
-            column-count: 2; /* Default for mobile */
-            column-gap: 10px;
+            columns: 2;
+            column-gap: 15px;
         }
 
-        /* --- WALLPAPER CARD --- */
         .card {
             break-inside: avoid;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border-radius: var(--radius);
             overflow: hidden;
             position: relative;
             background: var(--surface);
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .card:active { transform: scale(0.98); }
+        .card:hover { transform: scale(1.02); }
 
         .card img {
-            width: 100%;
-            height: auto;
+            width: 100%; height: auto;
             display: block;
-            border-radius: var(--radius);
         }
 
-        /* Gradient overlay for text readability on card */
-        .card::after {
-            content: '';
+        /* Favorite Button on Card */
+        .fav-toggle {
             position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 40%;
-            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-            opacity: 0.8;
-            pointer-events: none;
+            top: 12px; right: 12px;
+            width: 34px; height: 34px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 2;
+            opacity: 0;
+            transition: 0.3s;
         }
+        .card:hover .fav-toggle { opacity: 1; }
+        .fav-toggle.active { color: #ff4757; opacity: 1; background: white; }
 
-        /* --- FULLSCREEN MODAL (Lightbox) --- */
+        /* --- MODAL --- */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
-            z-index: 1000;
-            display: flex;
+            z-index: 2000;
+            display: none;
             flex-direction: column;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* Modal Image Area */
-        .modal-image-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             padding: 20px;
-            overflow: hidden;
         }
+        .modal.active { display: flex; }
 
         .modal-img {
             max-width: 100%;
-            max-height: 80vh;
-            border-radius: 12px;
-            box-shadow: 0 0 50px rgba(112, 71, 235, 0.2);
+            max-height: 75vh;
+            border-radius: 15px;
             object-fit: contain;
         }
 
-        /* Modal Controls (Bottom Sheet) */
-        .modal-controls {
-            background: var(--surface);
-            padding: 20px;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+        .modal-actions {
+            margin-top: 25px;
+            width: 100%;
+            max-width: 400px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            animation: slideUp 0.3s ease;
+            gap: 12px;
         }
 
-        .modal-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .action-row {
+        .info-row {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            gap: 15px;
+            color: #ccc;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
         }
+
+        .btn-group { display: flex; gap: 10px; }
 
         .btn {
             flex: 1;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 15px;
             border: none;
-            font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: inherit;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: 0.2s;
         }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: #333; color: white; }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 15px rgba(112, 71, 235, 0.4);
-        }
-
-        .btn-secondary {
-            background: #333;
-            color: white;
-        }
-        
         .close-modal {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 1.5rem;
-            background: rgba(255,255,255,0.1);
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            top: 25px; right: 25px;
+            color: white; font-size: 1.5rem;
             cursor: pointer;
-            z-index: 1001;
         }
 
-        /* --- SKELETON LOADING --- */
+        /* --- SKELETON --- */
         .skeleton {
-            width: 100%;
-            height: 300px;
-            background: #1a1a1a;
+            height: 250px;
+            background: var(--surface);
             border-radius: var(--radius);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             animation: pulse 1.5s infinite;
-            break-inside: avoid;
         }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        /* --- RESPONSIVE BREAKPOINTS --- */
+        /* --- MOBILE OPTIMIZATION --- */
         @media (min-width: 768px) {
-            .gallery { column-count: 3; column-gap: 20px; }
-            .card { margin-bottom: 20px; }
-            .modal-controls { 
-                flex-direction: row; 
-                align-items: center; 
-                justify-content: space-between;
-                border-radius: 0;
-                background: transparent;
-                position: absolute;
-                bottom: 20px; left: 50%;
-                transform: translateX(-50%);
-                width: auto;
-                gap: 20px;
-            }
-            .btn { width: auto; min-width: 160px; }
+            .gallery { columns: 3; column-gap: 20px; }
+            .container { padding-top: 120px; }
         }
-
         @media (min-width: 1200px) {
-            .gallery { column-count: 5; }
+            .gallery { columns: 4; }
         }
-
-        .error-msg {
-            color: #ff4757;
-            text-align: center;
-            margin-top: 50px;
-            font-weight: 600;
+        @media (max-width: 600px) {
+            .fav-toggle { opacity: 1; } /* Always show on mobile */
+            .modal-actions { position: fixed; bottom: 0; background: var(--surface); padding: 25px; border-radius: 25px 25px 0 0; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">WallpaperHub</div>
-        <a href="https://github.com/ritampaine75-debug/wall" class="social-link"><i class="fab fa-github"></i></a>
+        <div class="logo">WALLHUB</div>
+        <div class="nav-actions">
+            <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i></button>
+            <button class="icon-btn" id="showFavs"><i class="fas fa-heart"></i></button>
+        </div>
     </header>
 
     <div class="container">
-        <!-- Skeleton Loaders (Visible initially) -->
         <div class="gallery" id="gallery">
-            <div class="skeleton" style="height: 400px"></div>
-            <div class="skeleton" style="height: 250px"></div>
-            <div class="skeleton" style="height: 350px"></div>
-            <div class="skeleton" style="height: 300px"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
         </div>
     </div>
 
-    <!-- Fullscreen Preview Modal -->
+    <!-- Minimal Modal -->
     <div class="modal" id="imageModal">
-        <div class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></div>
+        <span class="close-modal"><i class="fas fa-times"></i></span>
+        <img src="" class="modal-img" id="modalImg">
         
-        <div class="modal-image-container">
-            <img src="" class="modal-img" id="modalImg" alt="Preview">
-        </div>
-
-        <div class="modal-controls">
-            <div class="modal-title" id="modalTitle">Wallpaper Name</div>
-            <div class="action-row">
-                <button class="btn btn-secondary" onclick="copyLink()">
-                    <i class="fas fa-link"></i> Copy
-                </button>
-                <button class="btn btn-primary" id="downloadBtn">
-                    <i class="fas fa-download"></i> Download
-                </button>
+        <div class="modal-actions">
+            <div class="info-row">
+                <span id="resTag"><i class="fas fa-expand"></i> --</span>
+                <span><i class="fas fa-check-circle"></i> High Quality</span>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" id="shareBtn"><i class="fas fa-share"></i> Share</button>
+                <button class="btn btn-primary" id="dlBtn"><i class="fas fa-download"></i> Download</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ===========================================
-        // CONFIGURATION
-        // ===========================================
         const USERNAME = "ritampaine75-debug";
         const REPO = "wall";
-        const FOLDER = "wallpapers"; 
-        // ===========================================
+        const FOLDER = "wallpapers";
+
+        let wallpapers = [];
+        let favorites = JSON.parse(localStorage.getItem('my_favs')) || [];
+        let viewingFavorites = false;
 
         const gallery = document.getElementById('gallery');
         const modal = document.getElementById('imageModal');
-        const modalImg = document.getElementById('modalImg');
-        const modalTitle = document.getElementById('modalTitle');
-        const downloadBtn = document.getElementById('downloadBtn');
-        let currentImageUrl = '';
 
         async function init() {
-            const apiUrl = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FOLDER}`;
-            
             try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error("Could not fetch wallpapers. Check Repo/Folder names.");
+                const res = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FOLDER}`);
+                const data = await res.json();
                 
-                const data = await response.json();
-                
-                // Filter images
-                const images = data.filter(file => file.name.match(/\.(jpg|jpeg|png|webp)$/i));
-                
-                // Clear skeletons
-                gallery.innerHTML = '';
+                wallpapers = data
+                    .filter(f => f.name.match(/\.(jpg|jpeg|png|webp)$/i))
+                    .map(f => f.download_url);
 
-                if(images.length === 0) {
-                    gallery.innerHTML = '<div class="error-msg">No images found.</div>';
-                    return;
-                }
-
-                images.forEach(file => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    // We pass the raw URL to the click handler
-                    card.onclick = () => openModal(file.download_url, file.name);
-                    
-                    // Lazy load images
-                    card.innerHTML = `<img src="${file.download_url}" loading="lazy" alt="${file.name}">`;
-                    
-                    gallery.appendChild(card);
-                });
-
-            } catch (error) {
-                gallery.innerHTML = `<div class="error-msg">${error.message}</div>`;
+                render(wallpapers);
+            } catch (err) {
+                gallery.innerHTML = "<p>Error connecting to gallery.</p>";
             }
         }
 
-        // --- MODAL FUNCTIONS ---
-
-        function openModal(url, name) {
-            modalImg.src = url;
-            modalTitle.innerText = name;
-            currentImageUrl = url;
-            
-            // Setup download button
-            downloadBtn.onclick = () => triggerDownload(url, name);
-            
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling bg
+        function render(list) {
+            gallery.innerHTML = list.map(url => `
+                <div class="card" onclick="openModal('${url}')">
+                    <button class="fav-toggle ${favorites.includes(url) ? 'active' : ''}" 
+                            onclick="event.stopPropagation(); toggleFav('${url}', this)">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <img src="${url}" loading="lazy">
+                </div>
+            `).join('');
         }
 
-        function closeModal() {
+        // --- ACTIONS ---
+
+        function toggleFav(url, btn) {
+            if (favorites.includes(url)) {
+                favorites = favorites.filter(f => f !== url);
+                btn.classList.remove('active');
+            } else {
+                favorites.push(url);
+                btn.classList.add('active');
+            }
+            localStorage.setItem('my_favs', JSON.stringify(favorites));
+        }
+
+        document.getElementById('showFavs').onclick = function() {
+            viewingFavorites = !viewingFavorites;
+            this.style.color = viewingFavorites ? '#ff4757' : 'inherit';
+            render(viewingFavorites ? wallpapers.filter(w => favorites.includes(w)) : wallpapers);
+        };
+
+        function openModal(url) {
+            const img = document.getElementById('modalImg');
+            img.src = url;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Resolution detection
+            const i = new Image();
+            i.src = url;
+            i.onload = () => document.getElementById('resTag').innerHTML = `<i class="fas fa-expand"></i> ${i.naturalWidth} x ${i.naturalHeight}`;
+
+            document.getElementById('dlBtn').onclick = () => download(url);
+            document.getElementById('shareBtn').onclick = () => share(url);
+        }
+
+        async function download(url) {
+            const btn = document.getElementById('dlBtn');
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+            try {
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const bUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = bUrl;
+                a.download = "wallpaper.jpg";
+                a.click();
+            } catch(e) { window.open(url, '_blank'); }
+            btn.innerHTML = `<i class="fas fa-download"></i> Download`;
+        }
+
+        function share(url) {
+            if (navigator.share) {
+                navigator.share({ url: url });
+            } else {
+                navigator.clipboard.writeText(url);
+                alert("Link copied!");
+            }
+        }
+
+        document.querySelector('.close-modal').onclick = () => {
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
-            setTimeout(() => { modalImg.src = ''; }, 300); // Clear after animation
-        }
+        };
 
-        // Close modal if clicking outside image
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal || e.target.classList.contains('modal-image-container')) {
-                closeModal();
-            }
-        });
+        // --- THEME ---
+        document.getElementById('themeToggle').onclick = () => {
+            const isDark = document.body.getAttribute('data-theme') !== 'light';
+            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('themeToggle').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        };
 
-        // --- ACTION FUNCTIONS ---
-
-        async function triggerDownload(url, filename) {
-            const originalText = downloadBtn.innerHTML;
-            downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Downloading...`;
-            
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
-                
-                const link = document.createElement('a');
-                link.href = blobUrl;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(blobUrl);
-                
-                downloadBtn.innerHTML = `<i class="fas fa-check"></i> Saved!`;
-                setTimeout(() => downloadBtn.innerHTML = originalText, 2000);
-            } catch (e) {
-                // Fallback
-                window.open(url, '_blank');
-                downloadBtn.innerHTML = originalText;
-            }
-        }
-
-        function copyLink() {
-            navigator.clipboard.writeText(currentImageUrl);
-            const btn = document.querySelector('.btn-secondary');
-            const original = btn.innerHTML;
-            btn.innerHTML = `<i class="fas fa-check"></i> Copied`;
-            setTimeout(() => btn.innerHTML = original, 2000);
-        }
-
-        // Run
         init();
     </script>
 </body>
