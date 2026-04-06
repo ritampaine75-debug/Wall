@@ -3,8 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WallHub | Minimal</title>
     
+    <title>WallHub | Minimal Wallpapers</title>
+    <meta name="title" content="WallHub | Minimal Wallpapers">
+    <meta name="description" content="Explore and download high-quality minimal wallpapers. Clean, simple, and elegant designs for your devices.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ritampaine75-debug.github.io/wall/"> 
+    <meta property="og:title" content="WallHub | Minimal Wallpapers">
+    <meta property="og:description" content="Download high-quality minimal wallpapers for your mobile and desktop.">
+    <meta property="og:image" content="https://i.ibb.co/67Jdp8PX/1775444245405.png">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://ritampaine75-debug.github.io/wall/">
+    <meta property="twitter:title" content="WallHub | Minimal Wallpapers">
+    <meta property="twitter:description" content="Explore and download high-quality minimal wallpapers.">
+    <meta property="twitter:image" content="https://i.ibb.co/67Jdp8PX/1775444245405.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -203,7 +218,7 @@
             .gallery { columns: 4; }
         }
         @media (max-width: 600px) {
-            .fav-toggle { opacity: 1; } /* Always show on mobile */
+            .fav-toggle { opacity: 1; }
             .modal-actions { position: fixed; bottom: 0; background: var(--surface); padding: 25px; border-radius: 25px 25px 0 0; }
         }
     </style>
@@ -227,7 +242,6 @@
         </div>
     </div>
 
-    <!-- Minimal Modal -->
     <div class="modal" id="imageModal">
         <span class="close-modal"><i class="fas fa-times"></i></span>
         <img src="" class="modal-img" id="modalImg">
@@ -283,8 +297,6 @@
             `).join('');
         }
 
-        // --- ACTIONS ---
-
         function toggleFav(url, btn) {
             if (favorites.includes(url)) {
                 favorites = favorites.filter(f => f !== url);
@@ -308,7 +320,6 @@
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // Resolution detection
             const i = new Image();
             i.src = url;
             i.onload = () => document.getElementById('resTag').innerHTML = `<i class="fas fa-expand"></i> ${i.naturalWidth} x ${i.naturalHeight}`;
@@ -346,7 +357,6 @@
             document.body.style.overflow = 'auto';
         };
 
-        // --- THEME ---
         document.getElementById('themeToggle').onclick = () => {
             const isDark = document.body.getAttribute('data-theme') !== 'light';
             document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
